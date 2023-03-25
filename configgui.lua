@@ -159,7 +159,7 @@ function exposed:Render()
                     CheckBox('SC Icon', 'ShowSkillchainIcon');
                     imgui.ShowHelp('Overrides weaponskill icons when a skillchain would be formed.');
                     CheckBox('SC Animation', 'ShowSkillchainAnimation');
-                    imgui.ShowHelp('Animates a border around weaponskill icons when a skillchain would be formed.');                
+                    imgui.ShowHelp('Animates a border around weaponskill icons when a skillchain would be formed.');
                     imgui.EndGroup();
                     imgui.TextColored(header, 'Hide UI');
                     CheckBox('While Zoning', 'HideWhileZoning');
@@ -167,7 +167,7 @@ function exposed:Render()
                     CheckBox('During Cutscenes', 'HideWhileCutscene');
                     imgui.ShowHelp('Hides UI while the game event system is active.');
                     CheckBox('While Map Open', 'HideWhileMap');
-                    imgui.ShowHelp('Hides UI while the map is the topmost menu.');                    
+                    imgui.ShowHelp('Hides UI while the map is the topmost menu.');
                     imgui.EndTabItem();
                 end
                 if imgui.BeginTabItem('Controller##tCrossbarControlsAppearanceTab') then
@@ -200,6 +200,8 @@ function exposed:Render()
                     imgui.ShowHelp('When enabled, pressing LR then R2 will be a seperate set from pressing R2 then L2.  When disabled, order won\'t matter.');
                     CheckBox('Double Tap', 'EnableDoubleTap');
                     imgui.ShowHelp('When enabled, a quick double tap then hold of L2 or R2 will produce a seperate macro set from single taps.');
+                    CheckBox('Always Show Single', 'ShowSingleDisplay');
+                    imgui.ShowHelp('When enabled, your L2 + R2 combo macros will be shown while no combo keys are pressed.');
                     CheckBox('Always Show Double', 'ShowDoubleDisplay');
                     imgui.ShowHelp('When enabled, your L2 and R2 macros will be shown together while no combo keys are pressed.');
                     CheckBox('Condense To Single', 'SwapToSingleDisplay');
@@ -207,7 +209,7 @@ function exposed:Render()
                     CheckBox('Inventory Passthrough', 'AllowInventoryPassthrough');
                     imgui.ShowHelp('When enabled, L2/R2/ZL/ZR will be passed to the game when inventory is the topmost menu.');
                     imgui.EndTabItem();
-                end                
+                end
                 if imgui.BeginTabItem('Binding##tCrossbarControlsBindingTab') then
                     imgui.BeginChild('##tCrossbarControllerBindingChild', { 258, 350 });
                     for _,control in ipairs(validControls) do
@@ -216,7 +218,7 @@ function exposed:Render()
                     imgui.EndChild();
                     imgui.EndTabItem();
                 end
-                
+
                 imgui.EndTabBar();
             end
             imgui.End();

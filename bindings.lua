@@ -136,7 +136,7 @@ function exposed:LoadDefaults(name, id, job)
     bindings.GlobalPath = string.format('%s/globals.lua', characterPath);
     bindings.GlobalBindings = LoadFile_s(bindings.GlobalPath);
     if (bindings.GlobalBindings == nil) then
-        bindings.GlobalBindings = T{};        
+        bindings.GlobalBindings = T{};
         if not (ashita.fs.exists(bindings.GlobalPath)) then
             WriteGlobals();
         end
@@ -230,7 +230,7 @@ function exposed:HandleCommand(args)
     if (#args < 3) then
         return;
     end
-    
+
     local cmd = string.lower(args[3]);
 
     if (cmd == 'add') then
@@ -245,7 +245,7 @@ function exposed:HandleCommand(args)
                 return;
             end
         end
-        
+
         local newPalette = { Name = args[4], Bindings = T{} };
         bindings.JobBindings.Palettes:append(newPalette);
         bindings.ActivePalette = newPalette;
@@ -309,7 +309,7 @@ function exposed:HandleCommand(args)
                 return;
             end
         end
-        
+
         Error('Could not find palette to change to.');
     end
 end

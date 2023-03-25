@@ -14,7 +14,13 @@ local macroStateText = {
     [3] = 'Both Triggers (Left First)',
     [4] = 'Both Triggers (Right First)',
     [5] = 'Left Trigger (Double Tap)',
-    [6] = 'Right Trigger (Double Tap)'
+    [6] = 'Right Trigger (Double Tap)',
+    [7] = 'Left Shoulder',
+    [8] = 'Right Shoulder',
+    [9] = 'Both Shoulders (Left First)',
+    [10] = 'Both Shoulders (Right First)',
+    [11] = 'Left Shoulder (Double Tap)',
+    [12] = 'Right Shoulder (Double Tap)'
 };
 
 local buttonText = {
@@ -29,12 +35,18 @@ local buttonText = {
 };
 
 local macroComboBinds = {
-    [1] = 'LT',
-    [2] = 'RT',
-    [3] = 'LTRT',
-    [4] = 'RTLT',
-    [5] = 'LT2',
-    [6] = 'RT2'
+    [1] = 'L2',
+    [2] = 'R2',
+    [3] = 'L2R2',
+    [4] = 'R2L2',
+    [5] = 'L2x2',
+    [6] = 'R2x2',
+    [7] = 'L1',
+    [8] = 'R1',
+    [9] = 'L1R1',
+    [10] = 'R1L1',
+    [11] = 'L1x2',
+    [12] = 'R1x2'
 };
 
 
@@ -137,7 +149,7 @@ local function UpdateMacroImage()
 
     if (string.sub(state.MacroImage[1], 1, 5) == 'ITEM:') then
         local item = AshitaCore:GetResourceManager():GetItemById(tonumber(string.sub(state.MacroImage[1], 6)));
-        if (item ~= nil) then    
+        if (item ~= nil) then
             local dx_texture_ptr = ffi.new('IDirect3DTexture8*[1]');
             if (ffi.C.D3DXCreateTextureFromFileInMemoryEx(d3d8_device, item.Bitmap, item.ImageSize, 0xFFFFFFFF, 0xFFFFFFFF, 1, 0, ffi.C.D3DFMT_A8R8G8B8, ffi.C.D3DPOOL_MANAGED, ffi.C.D3DX_DEFAULT, ffi.C.D3DX_DEFAULT, 0xFF000000, nil, nil, dx_texture_ptr) == ffi.C.S_OK) then
                 state.Texture = d3d8.gc_safe_release(ffi.cast('IDirect3DTexture8*', dx_texture_ptr[0]));
@@ -197,7 +209,7 @@ end
 
 Setup.Item = function(skipUpdate)
     state.ActionResources = T{};
-    
+
     local resMgr = AshitaCore:GetResourceManager();
     local bags = T{0, 3};
     for _,bag in ipairs(bags) do
@@ -240,7 +252,7 @@ Setup.Item = function(skipUpdate)
 
         --Show item id if multiple matching items..
         if (prev) and (prev.Name[1] == res.Name[1]) then
-            state.Combos.Action:append(string.format('%s[%u]', res.Name[1], res.Id));            
+            state.Combos.Action:append(string.format('%s[%u]', res.Name[1], res.Id));
         elseif (next) and (next.Name[1] == res.Name[1]) then
             state.Combos.Action:append(string.format('%s[%u]', res.Name[1], res.Id));
         else
@@ -613,7 +625,7 @@ function exposed:HandleButton(button, pressed)
             state.RepeatTime = os.clock();
             state.RepeatDelay = 0.3;
         end
-        
+
         if (state.Tab == 1) then
             if (button == 'BindingUp') then
                 if (state.SelectedIndex > 1) then
@@ -636,7 +648,7 @@ function exposed:HandleButton(button, pressed)
                     AdvanceCombo('Action');
                 end
             end
-            
+
             if (button == 'BindingPrevious') then
                 if (state.SelectedIndex == 1) then
                     DecrementCombo('Scope');
@@ -688,7 +700,7 @@ function exposed:Render()
                     imgui.TextColored(header, 'Combo Type');
                     imgui.Text(GetMacroStateText(state.MacroState));
                     imgui.TextColored(header, 'Macro Button');
-                    imgui.Text(buttonText[state.MacroButton]); 
+                    imgui.Text(buttonText[state.MacroButton]);
                     ComboBox('Scope', 'Scope', state.SelectedIndex == 1 and activeHeader or header);
                     imgui.ShowHelp('Determines how wide the binding will apply.  Job binds are used to fill empty slots in palette binds, then global binds are used to fill any remaining empty slots.');
                     ComboBox('Action Type', 'Type', state.SelectedIndex == 2 and activeHeader or header);
@@ -712,7 +724,7 @@ function exposed:Render()
                     end
                     imgui.EndChild();
                     imgui.EndTabItem();
-                end                
+                end
 
                 if imgui.BeginTabItem('Appearance##AppearanceTab', 0, (state.ForceTab == 2) and 6 or 4) then
                     state.Tab = 2;
@@ -723,8 +735,8 @@ function exposed:Render()
                     local width = 32;
                     local height = 32;
                     if layout then
-                        width = layout.SingleDisplay.ImageObjects.Icon.Width;
-                        height = layout.SingleDisplay.ImageObjects.Icon.Height;
+                        width = layout.SingleDisplay1.ImageObjects.Icon.Width;
+                        height = layout.SingleDisplay1.ImageObjects.Icon.Height;
                     end
                     imgui.BeginChild('AppearanceChild', { 253, 235 + height }, true);
                     imgui.TextColored(header, 'Image');
@@ -781,7 +793,7 @@ function exposed:Render()
                     imgui.EndChild();
                     imgui.EndTabItem();
                 end
-                
+
                 imgui.EndTabBar();
             end
             imgui.EndGroup();
@@ -889,7 +901,7 @@ function exposed:Show(macroState, macroButton)
         MacroImage = { binding.Image }
     };
     UpdateMacroImage();
-    
+
     for index,entry in ipairs(state.Combos.Type) do
         if (entry == binding.ActionType) then
             state.Indices.Type = index;
@@ -902,7 +914,7 @@ function exposed:Show(macroState, macroButton)
 
         if not state.ActionResources:contains(res) then
             state.ActionResources:append(res);
-            
+
             table.sort(state.ActionResources, function(a,b)
                 return a.Name[1] < b.Name[1];
             end);
@@ -912,7 +924,7 @@ function exposed:Show(macroState, macroButton)
                 state.Combos.Action:append(res.Name[1]);
             end
         end
-        
+
         for index,match in ipairs(state.ActionResources) do
             if (match == res) then
                 state.Indices.Action = index;
@@ -924,7 +936,7 @@ function exposed:Show(macroState, macroButton)
 
         if not state.ActionResources:contains(res) then
             state.ActionResources:append(res);
-            
+
             table.sort(state.ActionResources, function(a,b)
                 return a.Name[1] < b.Name[1];
             end);
@@ -934,7 +946,7 @@ function exposed:Show(macroState, macroButton)
                 state.Combos.Action:append(res.Name[1]);
             end
         end
-        
+
         for index,match in ipairs(state.ActionResources) do
             if (match == res) then
                 state.Indices.Action = index;
@@ -946,7 +958,7 @@ function exposed:Show(macroState, macroButton)
 
         if not state.ActionResources:contains(res) then
             state.ActionResources:append(res);
-            
+
             table.sort(state.ActionResources, function(a,b)
                 return a.Name[1] < b.Name[1];
             end);
@@ -955,10 +967,10 @@ function exposed:Show(macroState, macroButton)
             for index,res in ipairs(state.ActionResources) do
                 local prev = state.ActionResources[index - 1];
                 local next = state.ActionResources[index + 1];
-        
+
                 --Show item id if multiple matching items..
                 if (prev) and (prev.Name[1] == res.Name[1]) then
-                    state.Combos.Action:append(string.format('%s[%u]', res.Name[1], res.Id));            
+                    state.Combos.Action:append(string.format('%s[%u]', res.Name[1], res.Id));
                 elseif (next) and (next.Name[1] == res.Name[1]) then
                     state.Combos.Action:append(string.format('%s[%u]', res.Name[1], res.Id));
                 else
@@ -966,7 +978,7 @@ function exposed:Show(macroState, macroButton)
                 end
             end
         end
-        
+
         for index,match in ipairs(state.ActionResources) do
             if (match == res) then
                 state.Indices.Action = index;

@@ -46,12 +46,18 @@ end
 
 local function GetButtonAlias(comboIndex, buttonIndex)
     local macroComboBinds = {
-        [1] = 'LT',
-        [2] = 'RT',
-        [3] = 'LTRT',
-        [4] = 'RTLT',
-        [5] = 'LT2',
-        [6] = 'RT2'
+        [1] = 'L2',
+        [2] = 'R2',
+        [3] = 'L2R2',
+        [4] = 'R2L2',
+        [5] = 'L2x2',
+        [6] = 'R2x2',
+        [7] = 'L1',
+        [8] = 'R1',
+        [9] = 'L1R1',
+        [10] = 'R1L1',
+        [11] = 'L1x2',
+        [12] = 'R1x2'
     };
     return string.format('%s:%d', macroComboBinds[comboIndex], buttonIndex);
 end
@@ -59,69 +65,126 @@ end
 local SquareManager = {};
 SquareManager.Squares = T{};
 
-function SquareManager:Initialize(layout, singleStruct, doubleStruct)
-    self.SingleStruct = ffi.cast('AbilitySquarePanelState_t*', singleStruct);
-    self.DoubleStruct = ffi.cast('AbilitySquarePanelState_t*', doubleStruct);
+function SquareManager:Initialize(layout, singleStruct1, doubleStruct1, singleStruct2, doubleStruct2)
+    self.SingleStruct1 = ffi.cast('AbilitySquarePanelState_t*', singleStruct1);
+    self.DoubleStruct1 = ffi.cast('AbilitySquarePanelState_t*', doubleStruct1);
+    self.SingleStruct2 = ffi.cast('AbilitySquarePanelState_t*', singleStruct2);
+    self.DoubleStruct2 = ffi.cast('AbilitySquarePanelState_t*', doubleStruct2);
     self.Layout = layout;
     self.Hidden = false;
 
-    self.SinglePrimitives = T{};
-    for _,primitiveInfo in ipairs(layout.SingleDisplay.Primitives) do
+    self.SinglePrimitives1 = T{};
+    for _,primitiveInfo in ipairs(layout.SingleDisplay1.Primitives) do
         local prim = {
             Object = primitives.new(primitiveInfo),
             OffsetX = primitiveInfo.OffsetX,
             OffsetY = primitiveInfo.OffsetY,
         };
-        self.SinglePrimitives:append(prim);
+        self.SinglePrimitives1:append(prim);
     end
 
-    self.DoublePrimitives = T{};
-    for _,primitiveInfo in ipairs(layout.DoubleDisplay.Primitives) do
+    self.DoublePrimitives1 = T{};
+    for _,primitiveInfo in ipairs(layout.DoubleDisplay1.Primitives) do
         local prim = {
             Object = primitives.new(primitiveInfo),
             OffsetX = primitiveInfo.OffsetX,
             OffsetY = primitiveInfo.OffsetY,
         };
-        self.DoublePrimitives:append(prim);
+        self.DoublePrimitives1:append(prim);
+    end
+
+    self.SinglePrimitives2 = T{};
+    for _,primitiveInfo in ipairs(layout.SingleDisplay2.Primitives) do
+        local prim = {
+            Object = primitives.new(primitiveInfo),
+            OffsetX = primitiveInfo.OffsetX,
+            OffsetY = primitiveInfo.OffsetY,
+        };
+        self.SinglePrimitives2:append(prim);
+    end
+
+    self.DoublePrimitives2 = T{};
+    for _,primitiveInfo in ipairs(layout.DoubleDisplay2.Primitives) do
+        local prim = {
+            Object = primitives.new(primitiveInfo),
+            OffsetX = primitiveInfo.OffsetX,
+            OffsetY = primitiveInfo.OffsetY,
+        };
+        self.DoublePrimitives2:append(prim);
     end
 
     self.Squares = T{
         [1] = {},
         [2] = {},
+        [7] = {},
+        [8] = {},
     };
 
 
     local count = 0;
-    self.DefaultSquares = T{};
-    for _,squareInfo in ipairs(layout.DoubleDisplay.Squares) do
+    for _,squareInfo in ipairs(layout.DoubleDisplay1.Squares) do
         local buttonIndex = (count < 8) and (count + 1) or (count - 7);
         local tableIndex = (count < 8) and 1 or 2;
-        
-        local singlePointer = ffi.cast('AbilitySquareState_t*', singleStruct + structOffset + (structWidth * (buttonIndex - 1)));
-        local doublePointer = ffi.cast('AbilitySquareState_t*', doubleStruct + structOffset + (structWidth * count));
+
+        local singlePointer = ffi.cast('AbilitySquareState_t*', singleStruct1 + structOffset + (structWidth * (buttonIndex - 1)));
+        local doublePointer = ffi.cast('AbilitySquareState_t*', doubleStruct1 + structOffset + (structWidth * count));
 
         local newSquare = square:New(doublePointer, GetButtonAlias(tableIndex, buttonIndex));
         newSquare.SinglePointer = singlePointer;
         newSquare.DoublePointer = doublePointer;
 
         count = count + 1;
-        newSquare.MinX = squareInfo.OffsetX + layout.DoubleDisplay.ImageObjects.Frame.OffsetX;
-        newSquare.MaxX = newSquare.MinX + layout.DoubleDisplay.ImageObjects.Frame.Width;
-        newSquare.MinY = squareInfo.OffsetY + layout.DoubleDisplay.ImageObjects.Frame.OffsetY;
-        newSquare.MaxY = newSquare.MinY + layout.DoubleDisplay.ImageObjects.Frame.Height;
+        newSquare.MinX = squareInfo.OffsetX + layout.DoubleDisplay1.ImageObjects.Frame.OffsetX;
+        newSquare.MaxX = newSquare.MinX + layout.DoubleDisplay1.ImageObjects.Frame.Width;
+        newSquare.MinY = squareInfo.OffsetY + layout.DoubleDisplay1.ImageObjects.Frame.OffsetY;
+        newSquare.MaxY = newSquare.MinY + layout.DoubleDisplay1.ImageObjects.Frame.Height;
         self.Squares[tableIndex][buttonIndex] = newSquare;
     end
     for i = 3,6 do
         self.Squares[i] = T{};
         count = 0;
-        for _,squareInfo in ipairs(layout.SingleDisplay.Squares) do
+        for _,squareInfo in ipairs(layout.SingleDisplay1.Squares) do
             local buttonIndex = count + 1;
-            local singlePointer = ffi.cast('AbilitySquareState_t*', singleStruct + structOffset + (structWidth * count));
+            local singlePointer = ffi.cast('AbilitySquareState_t*', singleStruct1 + structOffset + (structWidth * count));
             local newSquare = square:New(singlePointer, GetButtonAlias(i, buttonIndex));
-            newSquare.MinX = squareInfo.OffsetX + layout.SingleDisplay.ImageObjects.Frame.OffsetX;
-            newSquare.MaxX = newSquare.MinX + layout.SingleDisplay.ImageObjects.Frame.Width;
-            newSquare.MinY = squareInfo.OffsetY + layout.SingleDisplay.ImageObjects.Frame.OffsetY;
-            newSquare.MaxY = newSquare.MinY + layout.SingleDisplay.ImageObjects.Frame.Height;
+            newSquare.MinX = squareInfo.OffsetX + layout.SingleDisplay1.ImageObjects.Frame.OffsetX;
+            newSquare.MaxX = newSquare.MinX + layout.SingleDisplay1.ImageObjects.Frame.Width;
+            newSquare.MinY = squareInfo.OffsetY + layout.SingleDisplay1.ImageObjects.Frame.OffsetY;
+            newSquare.MaxY = newSquare.MinY + layout.SingleDisplay1.ImageObjects.Frame.Height;
+            self.Squares[i][buttonIndex] = newSquare;
+            count = count + 1;
+        end
+    end
+    local count = 0;
+    for _,squareInfo in ipairs(layout.DoubleDisplay2.Squares) do
+        local buttonIndex = (count < 8) and (count + 1) or (count - 7);
+        local tableIndex = (count < 8) and 7 or 8;
+
+        local singlePointer = ffi.cast('AbilitySquareState_t*', singleStruct2 + structOffset + (structWidth * (buttonIndex - 1)));
+        local doublePointer = ffi.cast('AbilitySquareState_t*', doubleStruct2 + structOffset + (structWidth * count));
+
+        local newSquare = square:New(doublePointer, GetButtonAlias(tableIndex, buttonIndex));
+        newSquare.SinglePointer = singlePointer;
+        newSquare.DoublePointer = doublePointer;
+
+        count = count + 1;
+        newSquare.MinX = squareInfo.OffsetX + layout.DoubleDisplay2.ImageObjects.Frame.OffsetX;
+        newSquare.MaxX = newSquare.MinX + layout.DoubleDisplay2.ImageObjects.Frame.Width;
+        newSquare.MinY = squareInfo.OffsetY + layout.DoubleDisplay2.ImageObjects.Frame.OffsetY;
+        newSquare.MaxY = newSquare.MinY + layout.DoubleDisplay2.ImageObjects.Frame.Height;
+        self.Squares[tableIndex][buttonIndex] = newSquare;
+    end
+    for i = 9,12 do
+        self.Squares[i] = T{};
+        count = 0;
+        for _,squareInfo in ipairs(layout.SingleDisplay2.Squares) do
+            local buttonIndex = count + 1;
+            local singlePointer = ffi.cast('AbilitySquareState_t*', singleStruct2 + structOffset + (structWidth * count));
+            local newSquare = square:New(singlePointer, GetButtonAlias(i, buttonIndex));
+            newSquare.MinX = squareInfo.OffsetX + layout.SingleDisplay2.ImageObjects.Frame.OffsetX;
+            newSquare.MaxX = newSquare.MinX + layout.SingleDisplay2.ImageObjects.Frame.Width;
+            newSquare.MinY = squareInfo.OffsetY + layout.SingleDisplay2.ImageObjects.Frame.OffsetY;
+            newSquare.MaxY = newSquare.MinY + layout.SingleDisplay2.ImageObjects.Frame.Height;
             self.Squares[i][buttonIndex] = newSquare;
             count = count + 1;
         end
@@ -151,26 +214,40 @@ function SquareManager:Destroy()
             square:Destroy();
         end
     end
-    
-    if (type(self.SinglePrimitives) == 'table') then
-        for _,primitive in ipairs(self.SinglePrimitives) do
+
+    if (type(self.SinglePrimitives1) == 'table') then
+        for _,primitive in ipairs(self.SinglePrimitives1) do
             primitive.Object:destroy();
         end
-        self.SinglePrimitives = nil;
+        self.SinglePrimitives1 = nil;
     end
-    if (type(self.DoublePrimitives) == 'table') then
-        for _,primitive in ipairs(self.DoublePrimitives) do
+    if (type(self.DoublePrimitives1) == 'table') then
+        for _,primitive in ipairs(self.DoublePrimitives1) do
             primitive.Object:destroy();
         end
-        self.DoublePrimitives = nil;
+        self.DoublePrimitives1 = nil;
+    end
+    if (type(self.SinglePrimitives2) == 'table') then
+        for _,primitive in ipairs(self.SinglePrimitives2) do
+            primitive.Object:destroy();
+        end
+        self.SinglePrimitives2 = nil;
+    end
+    if (type(self.DoublePrimitives2) == 'table') then
+        for _,primitive in ipairs(self.DoublePrimitives2) do
+            primitive.Object:destroy();
+        end
+        self.DoublePrimitives2 = nil;
     end
 
-    self.SingleStruct = nil;
-    self.DoubleStruct = nil;
+    self.SingleStruct1 = nil;
+    self.DoubleStruct1 = nil;
+    self.SingleStruct2 = nil;
+    self.DoubleStruct2 = nil;
 end
 
 function SquareManager:GetHidden()
-    if (self.SingleStruct == nil) or (self.DoubleStruct == nil) then
+    if (self.SingleStruct1 == nil) or (self.DoubleStruct1 == nil) or (self.SingleStruct2 == nil) or (self.DoubleStruct2 == nil) then
         return true;
     end
 
@@ -195,7 +272,7 @@ function SquareManager:GetHidden()
     if (GetInterfaceHidden()) then
         return true;
     end
-    
+
     return false;
 end
 
@@ -207,16 +284,26 @@ end
 
 function SquareManager:HitTest(x, y)
     local pos, width, height, type;
-    if (self.DoubleDisplay == true) then
-        pos = gSettings.Position[gSettings.Layout].DoubleDisplay;
-        width = self.Layout.DoubleDisplay.PanelWidth;
-        height = self.Layout.DoubleDisplay.PanelHeight;
-        type = 'DoubleDisplay';
-    elseif (self.SingleDisplay == true) then
-        pos = gSettings.Position[gSettings.Layout].SingleDisplay;
-        width = self.Layout.SingleDisplay.PanelWidth;
-        height = self.Layout.SingleDisplay.PanelHeight;
-        type = 'SingleDisplay';
+    if (self.DoubleDisplay1 == true) then
+        pos = gSettings.Position[gSettings.Layout].DoubleDisplay1;
+        width = self.Layout.DoubleDisplay1.PanelWidth;
+        height = self.Layout.DoubleDisplay1.PanelHeight;
+        type = 'DoubleDisplay1'; -- TODO
+    elseif (self.SingleDisplay1 == true) then
+        pos = gSettings.Position[gSettings.Layout].SingleDisplay1;
+        width = self.Layout.SingleDisplay1.PanelWidth;
+        height = self.Layout.SingleDisplay1.PanelHeight;
+        type = 'SingleDisplay1';
+    elseif (self.DoubleDisplay2 == true) then
+        pos = gSettings.Position[gSettings.Layout].DoubleDisplay2;
+        width = self.Layout.DoubleDisplay2.PanelWidth;
+        height = self.Layout.DoubleDisplay2.PanelHeight;
+        type = 'DoubleDisplay2';
+    elseif (self.SingleDisplay2 == true) then
+        pos = gSettings.Position[gSettings.Layout].SingleDisplay2;
+        width = self.Layout.SingleDisplay2.PanelWidth;
+        height = self.Layout.SingleDisplay2.PanelHeight;
+        type = 'SingleDisplay2';
     end
 
     if (pos ~= nil) then
@@ -228,55 +315,60 @@ function SquareManager:HitTest(x, y)
             end
         end
     end
-    
+
     return false;
 end
 
 function SquareManager:Tick()
-    self.SingleDisplay = false;
-    self.DoubleDisplay = false;
+    self.SingleDisplay1 = true;
+    self.SingleDisplay2 = true;
+    self.DoubleDisplay1 = true;
+    self.DoubleDisplay2 = true;
 
     if (self:GetHidden()) then
-        self:HidePrimitives(self.SinglePrimitives);
-        self:HidePrimitives(self.DoublePrimitives);
+        self:HidePrimitives(self.SinglePrimitives1);
+        self:HidePrimitives(self.DoublePrimitives1);
+        self:HidePrimitives(self.SinglePrimitives2);
+        self:HidePrimitives(self.DoublePrimitives2);
         return;
     end
-
 
     local macroState = gController:GetMacroState();
     if (gBindingGUI:GetActive()) then
         macroState = gBindingGUI:GetMacroState();
     end
 
-    if (macroState == 0) then
-        if (gSettings.ShowDoubleDisplay) then
-            self.DoubleDisplay = true;
-        end
-    elseif (macroState < 3) then
-        if (gSettings.SwapToSingleDisplay) then
-            self.SingleDisplay = true;
+    if (macroState > 0 and gSettings.SwapToSingleDisplay) then
+        if (macroState < 7) then
+            self.SingleDisplay2 = false;
         else
-            self.DoubleDisplay = true;
+            self.SingleDisplay1 = false;
         end
-    else
-        self.SingleDisplay = true;
+        self.DoubleDisplay1 = false;
+        self.DoubleDisplay2 = false;
     end
 
-    if (self.SingleDisplay) then
-        for _,squareClass in ipairs(self.Squares[macroState]) do
-            if (macroState < 3) then
+    if (self.SingleDisplay1) then
+        local tableIndex = macroState
+        if (tableIndex == 0) or (not gSettings.SwapToSingleDisplay) then
+            tableIndex = 3
+        end
+        for _,squareClass in ipairs(self.Squares[tableIndex]) do
+            if (tableIndex > 0 and tableIndex < 3) then
                 squareClass.StructPointer = squareClass.SinglePointer;
                 squareClass.Updater.StructPointer = squareClass.SinglePointer;
             end
             squareClass:Update();
         end
-        local pos = gSettings.Position[gSettings.Layout].SingleDisplay;
-        self.SingleStruct.PositionX = pos[1];
-        self.SingleStruct.PositionY = pos[2];
-        self.SingleStruct.Render = 1;
-        self:HidePrimitives(self.DoublePrimitives);
-        self:UpdatePrimitives(self.SinglePrimitives, pos);
-    elseif (self.DoubleDisplay) then
+        local pos = gSettings.Position[gSettings.Layout].SingleDisplay1;
+        self.SingleStruct1.PositionX = pos[1];
+        self.SingleStruct1.PositionY = pos[2];
+        self.SingleStruct1.Render = 1;
+        self:UpdatePrimitives(self.SinglePrimitives1, pos);
+    else
+        self:HidePrimitives(self.SinglePrimitives1);
+    end
+    if (self.DoubleDisplay1) then
         for _,tableIndex in ipairs(T{1, 2}) do
             for _,squareClass in ipairs(self.Squares[tableIndex]) do
                 squareClass.StructPointer = squareClass.DoublePointer;
@@ -284,15 +376,50 @@ function SquareManager:Tick()
                 squareClass:Update();
             end
         end
-        local pos = gSettings.Position[gSettings.Layout].DoubleDisplay;
-        self.DoubleStruct.PositionX = pos[1];
-        self.DoubleStruct.PositionY = pos[2];
-        self.DoubleStruct.Render = 1;
-        self:HidePrimitives(self.SinglePrimitives);
-        self:UpdatePrimitives(self.DoublePrimitives, pos);
+        local pos = gSettings.Position[gSettings.Layout].DoubleDisplay1;
+        self.DoubleStruct1.PositionX = pos[1];
+        self.DoubleStruct1.PositionY = pos[2];
+        self.DoubleStruct1.Render = 1;
+        self:UpdatePrimitives(self.DoublePrimitives1, pos);
     else
-        self:HidePrimitives(self.SinglePrimitives);
-        self:HidePrimitives(self.DoublePrimitives);
+        self:HidePrimitives(self.DoublePrimitives1);
+    end
+
+    if (self.SingleDisplay2) then
+        local tableIndex = macroState
+        if (tableIndex == 0) or (not gSettings.SwapToSingleDisplay) then
+            tableIndex = 9
+        end
+        for _,squareClass in ipairs(self.Squares[tableIndex]) do
+            if (tableIndex > 6 and tableIndex < 9) then
+                squareClass.StructPointer = squareClass.SinglePointer;
+                squareClass.Updater.StructPointer = squareClass.SinglePointer;
+            end
+            squareClass:Update();
+        end
+        local pos = gSettings.Position[gSettings.Layout].SingleDisplay2;
+        self.SingleStruct2.PositionX = pos[1];
+        self.SingleStruct2.PositionY = pos[2];
+        self.SingleStruct2.Render = 1;
+        self:UpdatePrimitives(self.SinglePrimitives2, pos);
+    else
+        self:HidePrimitives(self.SinglePrimitives2);
+    end
+    if (self.DoubleDisplay2) then
+        for _,tableIndex in ipairs(T{7, 8}) do
+            for _,squareClass in ipairs(self.Squares[tableIndex]) do
+                squareClass.StructPointer = squareClass.DoublePointer;
+                squareClass.Updater.StructPointer = squareClass.DoublePointer;
+                squareClass:Update();
+            end
+        end
+        local pos = gSettings.Position[gSettings.Layout].DoubleDisplay2;
+        self.DoubleStruct2.PositionX = pos[1];
+        self.DoubleStruct2.PositionY = pos[2];
+        self.DoubleStruct2.Render = 1;
+        self:UpdatePrimitives(self.DoublePrimitives2, pos);
+    else
+        self:HidePrimitives(self.DoublePrimitives2);
     end
 end
 

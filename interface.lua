@@ -145,7 +145,7 @@ local function LoadLayout(interface, layoutName)
     if (interface.Layout == nil) then
         return false;
     end
-    
+
     interface.Layout.CrossPath = GetImagePath(interface.Layout.CrossPath);
     if (interface.Layout.CrossPath == nil) then
         interface.Layout.CrossPath = '';
@@ -163,10 +163,10 @@ local function LoadLayout(interface, layoutName)
     end
     interface.Layout.SkillchainAnimationPaths = newPaths;
 
-    for _,layoutType in ipairs(T{'SingleDisplay', 'DoubleDisplay'}) do
+    for _,layoutType in ipairs(T{'SingleDisplay1', 'DoubleDisplay1', 'SingleDisplay2', 'DoubleDisplay2'}) do
         local layout = interface.Layout[layoutType];
         layout.IconFadeAlpha = interface.Layout.IconFadeAlpha;
-        
+
         for _,primitiveInfo in ipairs(layout.Primitives) do
             if (primitiveInfo.File ~= nil) then
                 primitiveInfo.texture = GetImagePath(primitiveInfo.File);
@@ -201,7 +201,7 @@ end
 
 function interface:Destroy()
     self.SquareManager:Destroy();
-    
+
     if (self.StructPointer ~= nil) then
         AshitaCore:GetPluginManager():RaiseEvent('tRenderer_Destroy', (self.Layout.Path .. '\x00'):totable());
         self.StructPointer = nil;
@@ -217,13 +217,21 @@ function interface:GetSquareManager()
 end
 
 function interface:HandleEvent(e)
-    if (e.name == self.EventIdentifier[1]) and (self.StructPointer[1] == nil) then        
+    if (e.name == self.EventIdentifier[1]) and (self.StructPointer[1] == nil) then
         self.StructPointer[1] = struct.unpack('L', e.data, 1);
     end
 
-    if (e.name == self.EventIdentifier[2]) and (self.StructPointer[1] ~= nil) and (self.StructPointer[2] == nil) then
+    if (e.name == self.EventIdentifier[2]) and (self.StructPointer[2] == nil) then
         self.StructPointer[2] = struct.unpack('L', e.data, 1);
-        self.SquareManager:Initialize(self.Layout, self.StructPointer[1], self.StructPointer[2]);
+    end
+
+    if (e.name == self.EventIdentifier[3]) and (self.StructPointer[3] == nil) then
+        self.StructPointer[3] = struct.unpack('L', e.data, 1);
+    end
+
+    if (e.name == self.EventIdentifier[4]) and (self.StructPointer[1] ~= nil) and (self.StructPointer[2] ~= nil) and (self.StructPointer[3] ~= nil) and (self.StructPointer[4] == nil) then
+        self.StructPointer[4] = struct.unpack('L', e.data, 1);
+        self.SquareManager:Initialize(self.Layout, self.StructPointer[1], self.StructPointer[2], self.StructPointer[3], self.StructPointer[4]);
         gBindings:Update();
         gSettings.Layout = self.Layout.Name;
         settings.save();
@@ -245,12 +253,16 @@ function interface:Initialize(layoutName)
 
     if (LoadLayout(self, layoutName)) then
         self.Initializer = T{
-            lua_EventInitializerToStruct(self.Layout.SingleDisplay, string.format('%s_Single', self.Layout.Path)),
-            lua_EventInitializerToStruct(self.Layout.DoubleDisplay, string.format('%s_Double', self.Layout.Path))
+            lua_EventInitializerToStruct(self.Layout.SingleDisplay1, string.format('%s_Single1', self.Layout.Path)),
+            lua_EventInitializerToStruct(self.Layout.DoubleDisplay1, string.format('%s_Double1', self.Layout.Path)),
+            lua_EventInitializerToStruct(self.Layout.SingleDisplay2, string.format('%s_Single2', self.Layout.Path)),
+            lua_EventInitializerToStruct(self.Layout.DoubleDisplay2, string.format('%s_Double2', self.Layout.Path))
         };
         self.EventIdentifier = {
-            string.format('tRenderer_Accessor_%s_Single', self.Layout.Path),
-            string.format('tRenderer_Accessor_%s_Double', self.Layout.Path)
+            string.format('tRenderer_Accessor_%s_Single1', self.Layout.Path),
+            string.format('tRenderer_Accessor_%s_Double1', self.Layout.Path),
+            string.format('tRenderer_Accessor_%s_Single2', self.Layout.Path),
+            string.format('tRenderer_Accessor_%s_Double2', self.Layout.Path)
         };
 
         ashita.events.register('plugin_event', 'interface_event_cb', (function (self, e)
@@ -274,10 +286,22 @@ function interface:Tick()
         local eventStruct = ffi.string(self.Initializer[1], ffi.sizeof(self.Initializer[1])):totable();
         AshitaCore:GetPluginManager():RaiseEvent('tRenderer_Initialize', eventStruct);
         return;
-    end    
+    end
 
     if (self.StructPointer[2] == nil) then
         local eventStruct = ffi.string(self.Initializer[2], ffi.sizeof(self.Initializer[2])):totable();
+        AshitaCore:GetPluginManager():RaiseEvent('tRenderer_Initialize', eventStruct);
+        return;
+    end
+
+    if (self.StructPointer[3] == nil) then
+        local eventStruct = ffi.string(self.Initializer[3], ffi.sizeof(self.Initializer[3])):totable();
+        AshitaCore:GetPluginManager():RaiseEvent('tRenderer_Initialize', eventStruct);
+        return;
+    end
+
+    if (self.StructPointer[4] == nil) then
+        local eventStruct = ffi.string(self.Initializer[4], ffi.sizeof(self.Initializer[4])):totable();
         AshitaCore:GetPluginManager():RaiseEvent('tRenderer_Initialize', eventStruct);
         return;
     end

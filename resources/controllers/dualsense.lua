@@ -113,7 +113,7 @@ local function HandleTrigger(buttonName, intensity, pressed)
     local button = state[buttonName];
     button.Intensity = intensity;
     button.Pressed = pressed;
-    
+
     if (isActive == false) then
         if (button.Active) then
             gController:Trigger(buttonName, false);
@@ -161,7 +161,7 @@ local layout = {
     --Enable the input method used for this controller only.
     DirectInput = true,
     XInput = false,
-    
+
     --List of all button names available in this layout.
     --Buttons must be triggered in the event handlers with identical names.
     ButtonMap = {
@@ -206,7 +206,7 @@ local layout = {
         'Microphone',
     };
 
-    --Default controls until user configures bindings.  Must exact match strings in ButtonMap.    
+    --Default controls until user configures bindings.  Must exact match strings in ButtonMap.
     Defaults = {
         Macro1 = 'Dpad_Up',
         Macro2 = 'Dpad_Right',
@@ -249,27 +249,27 @@ local layout = {
                 e.blocked = true;
             end
         end,
-        
+
         --Horizontal R-Stick Movement
         [8] = function(e)
             if HandleStick('RStick', e.state, state.RStick.Vertical) then
                 e.blocked = true;
             end
         end,
-        
+
         --L2 intensity
-        [12] = function(e)
-            if HandleTrigger('L2', e.state, state.L2.Pressed) then
-                e.blocked = true;
-            end
-        end,
+        -- [12] = function(e)
+        --     if HandleTrigger('L2', e.state, state.L2.Pressed) then
+        --         e.blocked = true;
+        --     end
+        -- end,
 
         --R2 intensity
-        [16] = function(e)
-            if HandleTrigger('R2', e.state, state.R2.Pressed) then
-                e.blocked = true;
-            end
-        end,
+        -- [16] = function(e)
+        --     if HandleTrigger('R2', e.state, state.R2.Pressed) then
+        --         e.blocked = true;
+        --     end
+        -- end,
 
         --Vertical R-Stick Movement
         [20] = function(e)
@@ -277,7 +277,7 @@ local layout = {
                 e.blocked = true;
             end
         end,
-        
+
         [32] = function(e)
             if HandleDPad(e.state) then
                 e.blocked = true;
@@ -321,13 +321,15 @@ local layout = {
         end,
 
         [54] = function(e)
-            if HandleTrigger('L2', state.L2.Intensity, (e.state == 128)) then
+            -- if HandleTrigger('L2', state.L2.Intensity, (e.state == 128)) then
+            if HandleButton('L2', e.state == 128) then
                 e.blocked = true;
             end
         end,
 
         [55] = function(e)
-            if HandleTrigger('R2', state.R2.Intensity, (e.state == 128)) then
+            -- if HandleTrigger('R2', state.R2.Intensity, (e.state == 128)) then
+            if HandleButton('R2', e.state == 128) then
                 e.blocked = true;
             end
         end,

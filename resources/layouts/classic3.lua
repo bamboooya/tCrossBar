@@ -578,7 +578,7 @@ local theme = {
             },
             {
                 File            = 'misc/dpad.png',
-                OffsetX         = 457,
+                OffsetX         = 845,
                 OffsetY         = 57,
                 texture         = nil,
                 texture_offset_x= 0.0,
@@ -601,7 +601,7 @@ local theme = {
             },
             {
                 File            = 'misc/buttons.png',
-                OffsetX         = 631,
+                OffsetX         = 1019,
                 OffsetY         = 57,
                 texture         = nil,
                 texture_offset_x= 0.0,
@@ -631,7 +631,7 @@ local theme = {
         PanelHeight = 168,
 
         --Width of the full graphics object used to render all squares.  All squares *MUST* fully fit within this panel.
-        PanelWidth = 746,
+        PanelWidth = 1119,
 
         --Default position for object.  Set later in this theme using scaling lib.
         DefaultX = 0,
@@ -675,14 +675,14 @@ local theme = {
             { OffsetX = 290, OffsetY = 55 },
             { OffsetX = 232, OffsetY = 110 },
             { OffsetX = 174, OffsetY = 55 },
-            { OffsetX = 446, OffsetY = 0 },
-            { OffsetX = 504, OffsetY = 55 },
-            { OffsetX = 446, OffsetY = 110 },
-            { OffsetX = 388, OffsetY = 55 },
-            { OffsetX = 620, OffsetY = 0 },
-            { OffsetX = 678, OffsetY = 55 },
-            { OffsetX = 620, OffsetY = 110 },
-            { OffsetX = 562, OffsetY = 55 },
+            { OffsetX = 834, OffsetY = 0 },
+            { OffsetX = 892, OffsetY = 55 },
+            { OffsetX = 834, OffsetY = 110 },
+            { OffsetX = 776, OffsetY = 55 },
+            { OffsetX = 1008, OffsetY = 0 },
+            { OffsetX = 1066, OffsetY = 55 },
+            { OffsetX = 1008, OffsetY = 110 },
+            { OffsetX = 950, OffsetY = 55 },
         },
     },
     --Display used when showing default display, 16 button squares total.
@@ -844,7 +844,7 @@ local theme = {
             },
             {
                 File            = 'misc/dpad.png',
-                OffsetX         = 457,
+                OffsetX         = 845,
                 OffsetY         = 57,
                 texture         = nil,
                 texture_offset_x= 0.0,
@@ -867,7 +867,7 @@ local theme = {
             },
             {
                 File            = 'misc/buttons.png',
-                OffsetX         = 631,
+                OffsetX         = 1019,
                 OffsetY         = 57,
                 texture         = nil,
                 texture_offset_x= 0.0,
@@ -897,7 +897,7 @@ local theme = {
         PanelHeight = 168,
 
         --Width of the full graphics object used to render all squares.  All squares *MUST* fully fit within this panel.
-        PanelWidth = 746,
+        PanelWidth = 1119,
 
         --Default position for object.  Set later in this theme using scaling lib.
         DefaultX = 0,
@@ -941,14 +941,14 @@ local theme = {
             { OffsetX = 290, OffsetY = 55 },
             { OffsetX = 232, OffsetY = 110 },
             { OffsetX = 174, OffsetY = 55 },
-            { OffsetX = 446, OffsetY = 0 },
-            { OffsetX = 504, OffsetY = 55 },
-            { OffsetX = 446, OffsetY = 110 },
-            { OffsetX = 388, OffsetY = 55 },
-            { OffsetX = 620, OffsetY = 0 },
-            { OffsetX = 678, OffsetY = 55 },
-            { OffsetX = 620, OffsetY = 110 },
-            { OffsetX = 562, OffsetY = 55 },
+            { OffsetX = 834, OffsetY = 0 },
+            { OffsetX = 892, OffsetY = 55 },
+            { OffsetX = 834, OffsetY = 110 },
+            { OffsetX = 776, OffsetY = 55 },
+            { OffsetX = 1008, OffsetY = 0 },
+            { OffsetX = 1066, OffsetY = 55 },
+            { OffsetX = 1008, OffsetY = 110 },
+            { OffsetX = 950, OffsetY = 55 },
         },
     },
 

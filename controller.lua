@@ -12,6 +12,10 @@ local controller = {
         LeftTapTimer = 0,
         Right = false,
         RightTapTimer = 0,
+        PrevPalette = false,
+        PrevPaletteTapTimer = 0,
+        NextPalette = false,
+        NextPaletteTapTimer = 0,
     },
 };
 
@@ -22,7 +26,13 @@ local ComboMode = {
     BothTriggersLeft = 3,
     BothTriggersRight = 4,
     LeftTriggerDouble = 5,
-    RightTriggerDouble = 6
+    RightTriggerDouble = 6,
+    LeftShoulder = 7,
+    RightShoulder = 8,
+    BothShouldersLeft = 9,
+    BothShouldersRight = 10,
+    LeftShoulderDouble = 11,
+    RightShoulderDouble = 12,
 };
 
 local bindCommands = {
@@ -126,7 +136,7 @@ function controller:SetLayout(layout)
     end
 
     self.Layout = LoadLayout(layout);
-    
+
     if (self.Layout ~= nil) then
         InitializeControls();
 
@@ -204,6 +214,9 @@ function controller:Trigger(button, pressed)
             end
             self.ComboState.Left = false;
         end
+        if ((self.ComboState.Left or self.ComboState.Right) and (self.ComboState.PrevPalette or self.ComboState.NextPalette)) then
+            self.ComboState.CurrentMode = ComboMode.Inactive;
+        end
         return true;
     elseif (button == controls.ComboRight) then
         if (pressed == true) then
@@ -226,26 +239,72 @@ function controller:Trigger(button, pressed)
             end
             self.ComboState.Right = false;
         end
+        if ((self.ComboState.Left or self.ComboState.Right) and (self.ComboState.PrevPalette or self.ComboState.NextPalette)) then
+            self.ComboState.CurrentMode = ComboMode.Inactive;
+        end
         return true;
-    end
-    
-    if (button == controls.PreviousPalette) then
-        self.ComboState.PrevPalette = pressed;
-        if (pressed == true) and (self:GetMacroState() == 1) then
-            gBindings:PreviousPalette();
+    elseif (button == controls.PreviousPalette) then
+        if (pressed == true) then
+            if (not self.ComboState.NextPalette) then
+                if (os.clock() < self.ComboState.PrevPaletteTapTimer) and (gSettings.EnableDoubleTap) then
+                    self.ComboState.CurrentMode = ComboMode.LeftShoulderDouble;
+                    self.ComboState.PrevPalette = pressed;
+                    if (pressed == true) and (self.ComboState.Left) then
+                        gBindings:PreviousPalette();
+                    end
+                else
+                    self.ComboState.CurrentMode = ComboMode.LeftShoulder;
+                end
+            else
+                if (gSettings.EnablePriority) then
+                    self.ComboState.CurrentMode = ComboMode.BothShouldersRight;
+                else
+                    self.ComboState.CurrentMode = ComboMode.BothShouldersLeft;
+                end
+            end
+            self.ComboState.PrevPalette = true;
+            self.ComboState.PrevPaletteTapTimer = os.clock() + gSettings.TapTimer;
+        else
+            if (self.ComboState.NextPalette) then
+                self.ComboState.CurrentMode = ComboMode.RightShoulder;
+            else
+                self.ComboState.CurrentMode = ComboMode.Inactive;
+            end
+            self.ComboState.PrevPalette = false;
         end
-        if (self:GetMacroState() ~= 0) then
-            return true;
+        if ((self.ComboState.Left or self.ComboState.Right) and (self.ComboState.PrevPalette or self.ComboState.NextPalette)) then
+            self.ComboState.CurrentMode = ComboMode.Inactive;
         end
-        
+        return true;
     elseif (button == controls.NextPalette) then
-        self.ComboState.NextPalette = pressed;
-        if (pressed == true) and (self:GetMacroState() == 2) then
-            gBindings:NextPalette();
+        if (pressed == true) then
+            if (not self.ComboState.PrevPalette) then
+                if (os.clock() < self.ComboState.NextPaletteTapTimer) and (gSettings.EnableDoubleTap) then
+                    self.ComboState.CurrentMode = ComboMode.RightShoulderDouble;
+                    self.ComboState.NextPalette = pressed;
+                    if (pressed == true) and (self.ComboState.Right) then
+                        gBindings:NextPalette();
+                    end
+                else
+                    self.ComboState.CurrentMode = ComboMode.RightShoulder;
+                end
+            else
+                self.ComboState.CurrentMode = ComboMode.BothShouldersLeft;
+            end
+            self.ComboState.NextPalette = true;
+            self.ComboState.NextPaletteTapTimer = os.clock() + gSettings.TapTimer;
+        else
+            if (self.ComboState.PrevPalette) then
+                self.ComboState.CurrentMode = ComboMode.LeftShoulder;
+            else
+                self.ComboState.CurrentMode = ComboMode.Inactive;
+            end
+            self.ComboState.NextPalette = false;
         end
-        if (self:GetMacroState() ~= 0) then
-            return true;
+        if ((self.ComboState.Left or self.ComboState.Right) and (self.ComboState.PrevPalette or self.ComboState.NextPalette)) then
+            self.ComboState.CurrentMode = ComboMode.Inactive;
         end
+        return true;
     end
 
     --Don't trigger macros while binding GUI is active..
@@ -256,7 +315,7 @@ function controller:Trigger(button, pressed)
                 return true;
             end
         end
-    elseif (self:GetMacroState() ~= 0) and (pressed == true) then
+    elseif (self:GetMacroState() ~= 0) and (pressed == true) and (self.ComboState.CurrentMode ~= ComboMode.Inactive) then
         for i = 1,8 do
             local str = string.format('Macro%d', i);
             if (button == controls[str]) then
@@ -269,7 +328,6 @@ function controller:Trigger(button, pressed)
                 end
             end
         end
-
     end
 end
 

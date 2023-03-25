@@ -16,7 +16,7 @@ function GetImagePath(image, default)
     if (string.sub(image, 1, 5) == 'ITEM:') then
         return image;
     end
-    
+
     local potentialPaths = T{
         image,
         string.format('%sconfig/addons/%s/resources/%s', AshitaCore:GetInstallPath(), addon.name, image),
@@ -72,12 +72,13 @@ gBindingGUI   = require('bindinggui');
 gConfigGUI    = require('configgui');
 
 local defaultSettings = T{
-    Layout = 'classic',
+    Layout = 'classic3',
     Controller = 'dualsense',
     BindMenuTimer = 1,
     TapTimer = 0.4,
     EnableDoubleTap = true,
-    EnablePriority = true,
+    EnablePriority = false,
+    ShowSingleDisplay = true,
     ShowDoubleDisplay = true,
     SwapToSingleDisplay = false,
     AllowInventoryPassthrough = true,
