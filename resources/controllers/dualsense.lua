@@ -258,18 +258,18 @@ local layout = {
         end,
 
         --L2 intensity
-        -- [12] = function(e)
-        --     if HandleTrigger('L2', e.state, state.L2.Pressed) then
-        --         e.blocked = true;
-        --     end
-        -- end,
+        [12] = function(e)
+            if HandleTrigger('L2', e.state, state.L2.Pressed) then
+                e.blocked = true;
+            end
+        end,
 
         --R2 intensity
-        -- [16] = function(e)
-        --     if HandleTrigger('R2', e.state, state.R2.Pressed) then
-        --         e.blocked = true;
-        --     end
-        -- end,
+        [16] = function(e)
+            if HandleTrigger('R2', e.state, state.R2.Pressed) then
+                e.blocked = true;
+            end
+        end,
 
         --Vertical R-Stick Movement
         [20] = function(e)
@@ -321,15 +321,13 @@ local layout = {
         end,
 
         [54] = function(e)
-            -- if HandleTrigger('L2', state.L2.Intensity, (e.state == 128)) then
-            if HandleButton('L2', e.state == 128) then
+            if HandleTrigger('L2', state.L2.Intensity, (e.state == 128)) then
                 e.blocked = true;
             end
         end,
 
         [55] = function(e)
-            -- if HandleTrigger('R2', state.R2.Intensity, (e.state == 128)) then
-            if HandleButton('R2', e.state == 128) then
+            if HandleTrigger('R2', state.R2.Intensity, (e.state == 128)) then
                 e.blocked = true;
             end
         end,
